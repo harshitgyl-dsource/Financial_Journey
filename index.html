@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Management Quiz</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f7f7f7; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; }
+    .question { margin-bottom: 20px; font-size: 18px; }
+    .options button { display: block; margin: 5px 0; padding: 10px; width: 100%; font-size: 16px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background-color: #f0f0f0; }
+    .options button:hover { background-color: #e0e0e0; }
+    #nextBtn { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    .result { font-size: 20px; margin-top: 20px; }
+    .explanation { color: #d9534f; margin-top: 10px; }
+    .instructions { background: #f1f1f1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>Money Management & Financial Literacy Quiz</h1>
+
+<div class="instructions">
+<h3>Instructions:</h3>
+<ul>
+<li>All 50 questions are <strong>mandatory</strong>.</li>
+<li>Each correct answer gives <strong>10 marks</strong>.</li>
+<li>Each incorrect answer gives <strong>-5 marks</strong>.</li>
+<li>Only one option is correct per question.</li>
+<li>Questions will appear <strong>one by one</strong>.</li>
+<li>At the end, your <strong>final score</strong> and explanations for incorrect answers will be displayed.</li>
+</ul>
+<button onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div id="quiz" style="display:none;">
+    <div id="question-container">
+        <div id="question" class="question"></div>
+        <div class="options">
+            <button onclick="selectAnswer(0)" id="option0"></button>
+            <button onclick="selectAnswer(1)" id="option1"></button>
+            <button onclick="selectAnswer(2)" id="option2"></button>
+            <button onclick="selectAnswer(3)" id="option3"></button>
+        </div>
+        <button id="nextBtn" onclick="nextQuestion()">Next</button>
+    </div>
+</div>
+
+<div id="result" class="result"></div>
+
+<script>
+// Questions array
+const questions = [
+    // 1–10 Budgeting & Saving
+    {q:"Rahul gets ₹2000 pocket money. He spends ₹1500 on games. What did Rahul miss?", options:["Budgeting","Spending freely","Saving","Both a and c"], answer:3, explanation:"Rahul missed both budgeting and saving."},
+    {q:"Priya divides her ₹500 allowance: ₹200 food, ₹100 transport, ₹100 save, ₹100 fun. What is she doing?", options:["Random spending","Budgeting","Ignoring expenses","Borrowing money"], answer:1, explanation:"Priya is following a budget by planning her spending."},
+    {q:"If you save ₹50 every week, after 10 weeks you will have:", options:["₹500","₹100","₹250","₹1000"], answer:0, explanation:"50*10 = ₹500."},
+    {q:"Which of the following is the best way to start saving?", options:["Keep money under the pillow","Buy lottery tickets","Open a small bank account","Spend first, save later"], answer:2, explanation:"Opening a bank account is safe and helps you save regularly."},
+    {q:"Tina spends all her pocket money on snacks. What can help her next month?", options:["Budgeting","Ignoring expenses","Borrowing from friends","Buying more snacks"], answer:0, explanation:"Budgeting helps Tina plan and save money."},
+    {q:"Saving a small amount regularly is called:", options:["Compounding","Budgeting","Consistent saving","Random spending"], answer:2, explanation:"Saving small amounts consistently is key to building funds."},
+    {q:"Which of these is NOT a saving tool?", options:["Bank savings account","Piggy bank","Stock market lottery","Fixed deposit"], answer:2, explanation:"Stock market lottery is gambling, not a saving tool."},
+    {q:"Karan wants to buy a bike next year. What should he do now?", options:["Save a fixed amount monthly","Spend all on games","Borrow from friend","Wait and hope"], answer:0, explanation:"Saving monthly prepares him for future purchase."},
+    {q:"Ria writes all her daily expenses. This helps her to:", options:["Track spending","Forget money","Spend more","Borrow more"], answer:0, explanation:"Tracking expenses helps understand spending habits."},
+    {q:"Small unexpected expenses are best managed by:", options:["Ignoring them","Emergency fund","Borrowing","Spending extra on fun"], answer:1, explanation:"Emergency fund is meant for unforeseen expenses."},
+
+    // 11–20 Income & Expenses
+    {q:"Aman earns ₹10,000 and spends ₹12,000. What is this called?", options:["Savings","Overspending","Budgeting","Investing"], answer:1, explanation:"Spending more than income is overspending."},
+    {q:"What is a fixed expense?", options:["Food daily","Rent every month","Movie ticket","Birthday gift"], answer:1, explanation:"Rent is fixed every month."},
+    {q:"Which of these is a variable expense?", options:["Car EMI","Rent","Electricity bill","Shopping for clothes"], answer:3, explanation:"Shopping varies month to month."},
+    {q:"Raj divides his salary: 50% needs, 30% wants, 20% savings. This method is called:", options:["50-30-20 rule","Random spending","Lottery method","None"], answer:0, explanation:"50-30-20 rule is a budgeting method."},
+    {q:"Spending more than you earn leads to:", options:["Wealth","Debt","Saving","None"], answer:1, explanation:"Overspending leads to debt."},
+    {q:"Which of these is NOT a monthly income?", options:["Salary","Freelance payment","Interest on savings","Gift from friend"], answer:3, explanation:"Gift is not a regular monthly income."},
+    {q:"Sneha wants to buy a phone but has no savings. What should she do?", options:["Save gradually","Borrow immediately","Buy now with credit","Ignore budgeting"], answer:0, explanation:"She should save gradually to avoid debt."},
+    {q:"Fixed and variable expenses together are called:", options:["Income","Total expenses","Savings","Budget"], answer:1, explanation:"All expenses together form total expenses."},
+    {q:"Arjun spends only on needs. What is missing?", options:["Wants","Savings","Fun","All of the above"], answer:3, explanation:"Only spending on needs ignores wants, fun, and possibly savings."},
+    {q:"Which of these increases your savings?", options:["Earning more","Spending less","Both a and b","Ignoring budget"], answer:2, explanation:"Both earning more and spending less increase savings."},
+
+    // 21–30 Investing & Wealth Growth
+    {q:"Which is the safest investment?", options:["Fixed deposit","Lottery ticket","Gambling","Buying toys"], answer:0, explanation:"Fixed deposits are low-risk investments."},
+    {q:"Investing in shares may give:", options:["Loss only","Profit only","Profit or loss","Nothing"], answer:2, explanation:"Stocks can give profit or loss."},
+    {q:"Compounding means:", options:["Earning on savings + previous interest","Spending quickly","Borrowing repeatedly","Ignoring expenses"], answer:0, explanation:"Compounding means interest on interest."},
+    {q:"Which is risky but may give high returns?", options:["Bank deposit","Stock market","Piggy bank","Keeping cash at home"], answer:1, explanation:"Stock market is risky but potentially high return."},
+    {q:"What is a long-term investment?", options:["Buying chocolate","Buying shares for 5 years","Buying snacks daily","Borrowing money"], answer:1, explanation:"Investing in shares for years is long-term."},
+    {q:"Which investment helps during emergencies?", options:["Emergency fund","Stock market only","Lottery","Toys collection"], answer:0, explanation:"Emergency fund is meant for unexpected situations."},
+    {q:"Which of these is NOT a financial goal?", options:["Buying a house","Saving for studies","Random spending","Retirement fund"], answer:2, explanation:"Random spending is not a goal."},
+    {q:"Rohan invests ₹1000 monthly in a mutual fund. This is called:", options:["SIP (Systematic Investment Plan)","Random spending","Gambling","Loan"], answer:0, explanation:"Monthly fixed investment in mutual funds is SIP."},
+    {q:"Long-term savings help to:", options:["Buy expensive items","Build wealth","Handle emergencies","All of the above"], answer:3, explanation:"Long-term savings help in all these areas."},
+    {q:"Which of these is safest for beginners?", options:["Mutual fund SIP","Stock trading without knowledge","Lottery","Borrowing to invest"], answer:0, explanation:"Mutual fund SIP is safest for beginners."},
+
+    // 31–40 Credit, Debt & Loans
+    {q:"Using a credit card without paying full balance may lead to:", options:["Good savings","Debt","Rewards only","Free money"], answer:1, explanation:"Unpaid credit card balances accumulate interest, leading to debt."},
+    {q:"Which is a type of debt?", options:["Loan","Borrowing from friend","Credit card dues","All of the above"], answer:3, explanation:"All listed are types of debt."},
+    {q:"Paying bills on time avoids:", options:["Interest","Penalty","Debt growth","All of the above"], answer:3, explanation:"Paying on time avoids interest, penalty, and debt growth."},
+    {q:"What is better than taking loan for luxury?", options:["Save gradually","Borrow more","Ignore expenses","Buy immediately"], answer:0, explanation:"Saving gradually is better than taking a loan for luxury."},
+    {q:"High-interest loans are risky because:", options:["You pay extra money","You save automatically","They are free","None"], answer:0, explanation:"High interest means you pay more than borrowed amount."},
+    {q:"Raj borrowed ₹5000 at 20% interest. After 1 year he owes:", options:["₹5000","₹6000","₹5500","₹5200"], answer:1, explanation:"₹5000 + 20% of 5000 = ₹6000."},
+    {q:"Which of these is NOT a good debt?", options:["Home loan for first house","Credit card overspending","Education loan","Business loan with plan"], answer:1, explanation:"Credit card overspending is bad debt."},
+    {q:"Borrowing for needs vs wants:", options:["Needs are better","Wants are better","Both same","None"], answer:0, explanation:"Borrowing for needs is better than wants."},
+    {q:"Overusing credit cards can reduce:", options:["Credit score","Debt","Expenses","Savings"], answer:0, explanation:"Excessive use of credit reduces credit score."},
+    {q:"Safe borrowing requires:", options:["Plan to repay","High-interest lender","No planning","Spending freely"], answer:0, explanation:"Always plan repayment to borrow safely."},
+
+    // 41–50 Fraud, Safety & Literacy
+    {q:"Clicking unknown links may:", options:["Steal money","Increase savings","Reduce debt","Increase salary"], answer:0, explanation:"Unknown links may be scams that steal money."},
+    {q:"Sharing OTP with anyone is:", options:["Safe","Unsafe","Required","Optional"], answer:1, explanation:"OTP should never be shared; it is unsafe."},
+    {q:"Which is safest place to keep money?", options:["Bank account","Under pillow","With stranger","Online unknown app"], answer:0, explanation:"Bank accounts are secure for money."},
+    {q:"Ravi invested in 'double money in 1 week' scheme. What should he check?", options:["Legitimate returns","Bank approval","Fraud warnings","All of the above"], answer:3, explanation:"Always check all safety indicators to avoid fraud."},
+    {q:"Which helps financial literacy?", options:["Knowing savings, loans, investments","Ignoring money","Borrowing blindly","Spending randomly"], answer:0, explanation:"Financial literacy comes from understanding money matters."},
+    {q:"Which is an example of safe digital payment?", options:["Bank app","Random app","Stranger’s link","SMS link from unknown sender"], answer:0, explanation:"Official bank apps are safe for payments."},
+    {q:"Keeping track of expenses helps you:", options:["Plan savings","Avoid overspending","Prepare for emergencies","All of the above"], answer:3, explanation:"Tracking expenses helps in multiple ways."},
+    {q:"Which is NOT part of financial planning?", options:["Budget","Emergency fund","Random gambling","Investment strategy"], answer:2, explanation:"Gambling is not financial planning."},
+    {q:"Teaching children about money helps them:", options:["Become financially smart","Waste money","Borrow often","Avoid savings"], answer:0, explanation:"Teaching children about money makes them smart financially."},
+    {q:"Learning from mistakes like overspending or fraud is part of:", options:["Financial literacy","Random spending","Borrowing money","Ignoring budget"], answer:0, explanation:"Understanding mistakes is key to financial literacy."},
+];
+
+let currentQuestion = 0;
+let score = 0;
+let incorrectAnswers = [];
+
+function startQuiz() {
+    document.querySelector('.instructions').style.display = 'none';
+    document.getElementById('quiz').style.display = 'block';
+    showQuestion();
+}
+
+function showQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('question').innerText = `Q${currentQuestion+1}. ${q.q}`;
+    for(let i=0;i<4;i++){
+        document.getElementById('option'+i).innerText = q.options[i];
+    }
+}
+
+function selectAnswer(option) {
+    const q = questions[currentQuestion];
+    if(option === q.answer){
+        score += 10;
+    } else {
+        score -= 5;
+        incorrectAnswers.push({question:q.q, correct:q.options[q.answer], explanation:q.explanation});
+    }
+    nextQuestion();
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    if(currentQuestion < questions.length){
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('quiz').style.display = 'none';
+    let resultHTML = `<h2>Your final score: ${score} / ${questions.length*10}</h2>`;
+    if(incorrectAnswers.length > 0){
+        resultHTML += `<h3>Incorrect Answers & Explanations:</h3>`;
+        incorrectAnswers.forEach((item,i)=>{
+            resultHTML += `<p><strong>Q${i+1}:</strong> ${item.question}<br><strong>Correct Answer:</strong> ${item.correct}<br><strong>Explanation:</strong> ${item.explanation}</p>`;
+        });
+    } else {
+        resultHTML += `<p>All answers correct! Excellent work! 🎉</p>`;
+    }
+    document.getElementById('result').innerHTML = resultHTML;
+}
+</script>
+
+</div>
+</body>
+</html>
